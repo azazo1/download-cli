@@ -1,0 +1,36 @@
+# dn 配置文件. 所有字段都可以省略, 省略时使用内置默认值.
+# 命令行参数的优先级高于此文件.
+
+# 配置版本号, 由程序维护, 不要手动修改.
+version = 1
+
+# 下载目录. 为空表示当前目录; 支持 ~ 展开.
+download_dir = ""
+
+# 最大并发连接数, 范围 1 到 64.
+connections = 8
+
+# 最小分片大小. 分片再小就不值得再切了.
+min_part_size = "512KiB"
+
+# 有连接空闲时是否把剩余最多的分片切开, 交给空闲连接.
+dynamic_split = true
+
+# 单个分片在没有进展时允许的连续失败次数.
+retries = 5
+
+# 单个连接多久收不到数据就判定卡死并重连.
+stall_timeout = "30s"
+
+# 空值表示使用内置 User-Agent.
+user_agent = ""
+
+# 空值表示读取 HTTP_PROXY / HTTPS_PROXY 环境变量.
+proxy = ""
+
+# 日志级别: debug / info / warn / error.
+log_level = "info"
+
+# 附加请求头, 每个请求都会带上.
+[headers]
+# Referer = "https://example.com"
