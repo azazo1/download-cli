@@ -63,6 +63,7 @@ func newRootCmd(version string) *cobra.Command {
 		Long: `dn 把文件分成多个区间并用多个连接同时下载.
 有连接空闲时, 会把剩余最多的分片从中间切开交给空闲连接 (动态分片).
 下载被中断后, 重新运行同一条命令即可从断点继续.`,
+		Version: version,
 		Example: `  dn https://example.com/file.iso
   dn -d ~/Downloads -n 16 https://example.com/file.iso
   dn -o renamed.zip -H "Referer: https://example.com" https://example.com/a.zip`,
@@ -80,6 +81,8 @@ func newRootCmd(version string) *cobra.Command {
 	}
 	f.register(cmd)
 	cmd.AddCommand(newConfigCmd(), newVersionCmd(version))
+	// --version 只输出版本号本身, 便于脚本与发布流程精确断言.
+	cmd.SetVersionTemplate("{{.Version}}\n")
 	cmd.SetFlagErrorFunc(func(_ *cobra.Command, err error) error { return usageErr("%v", err) })
 	return cmd
 }

@@ -26,10 +26,13 @@ $ dn -n 8 https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ls-lR.gz
 ## 构建与安装
 
 ```
-just build          # 生成 bin/dn
+just build          # 生成 bin/dn, 版本号显示 dev-build
+just dist           # 生成当前平台的发布产物到 dist/ (注入版本号)
 just test           # 跑测试
 go install ./cmd/dn # 安装到 GOBIN
 ```
+
+`just dist` 需要 [uv](https://docs.astral.sh/uv/), 它只用来跑 `scripts/` 下的标准库 Python 脚本. 版本号由最近的 `v*` tag 推导: 正好在 tag 上显示 `v1.2.3`, 不在 tag 上显示 `v1.2.3-a1b2c3d`, 工作区有未提交改动时显示 `v1.2.3^a1b2c3d`. `dn --version` 只输出版本号本身.
 
 ## 用法
 

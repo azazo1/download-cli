@@ -1,0 +1,2 @@
+# 统一使用 LF 行尾, 否则 Windows 上检出为 CRLF, gofmt 会把所有 .go 文件判为未格式化.
+* text=auto eol=lf

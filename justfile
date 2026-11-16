@@ -6,10 +6,9 @@ default:
 build:
     go build -o bin/dn ./cmd/dn
 
-# just build-version v1.0.0
-# 构建并注入指定版本号.
-build-version version:
-    go build -ldflags "-X main.version={{version}}" -o bin/dn ./cmd/dn
+# 根据当前平台生成发布产物 (注入版本号, 产物落在 dist/).
+dist:
+    uv run --no-project python scripts/dist.py
 
 # 运行全部测试 (含竞态检测).
 test:
