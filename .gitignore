@@ -3,6 +3,10 @@ dist/
 .tmp/
 .references/
 
+# Python 字节码缓存 (scripts/ 下的发布脚本运行时产生).
+__pycache__/
+*.pyc
+
 # 下载产物与续传状态.
 *.part
 *.part.json
