@@ -80,7 +80,7 @@ func newRootCmd(version string) *cobra.Command {
 		},
 	}
 	f.register(cmd)
-	cmd.AddCommand(newConfigCmd(), newVersionCmd(version))
+	cmd.AddCommand(newServeCmd(), newConfigCmd(), newVersionCmd(version))
 	// --version 只输出版本号本身, 便于脚本与发布流程精确断言.
 	cmd.SetVersionTemplate("{{.Version}}\n")
 	cmd.SetFlagErrorFunc(func(_ *cobra.Command, err error) error { return usageErr("%v", err) })

@@ -31,6 +31,17 @@ proxy = ""
 # 日志级别: debug / info / warn / error.
 log_level = "info"
 
+# ---- dn serve (浏览器集成) ----
+# 监听端口. AB Download Manager 浏览器扩展默认也连 15151.
+serve_port = 15151
+
+# 浏览器集成使用的 api key. 留空表示不校验.
+serve_api_key = ""
+
+# 为 true 时, 浏览器集成端点 (/ping, /add) 也要求 api key.
+# /start-headless-download 无论该开关如何都要求 api key.
+serve_api_key_enforced = false
+
 # 附加请求头, 每个请求都会带上.
 [headers]
 # Referer = "https://example.com"

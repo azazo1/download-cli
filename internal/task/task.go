@@ -40,6 +40,9 @@ type Options struct {
 	ShowBar     bool
 	ProgressOut io.Writer
 	LogSwitch   *logging.SwitchWriter
+	// OnStart 在探测完成, 开始传输后调用, 提供实时进度源与文件总大小 (未知时为 -1).
+	// 调用方不应在 Run 返回后继续读取 source.
+	OnStart func(source progress.Source, size int64)
 }
 
 // Result 是一次成功下载的结果.
@@ -116,6 +119,9 @@ func Run(ctx context.Context, client *httpx.Client, log *slog.Logger, opts Optio
 	})
 	if !resume {
 		log.Info("初始分片", "数量", job.PartCount(), "最小分片", humanize.IBytes(uint64(opts.MinPartSize)))
+	}
+	if opts.OnStart != nil {
+		opts.OnStart(job, probe.Size)
 	}
 
 	display := progress.Start(job, progress.Options{

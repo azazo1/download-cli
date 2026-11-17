@@ -36,6 +36,11 @@ tidy:
 run *args:
     go run ./cmd/dn {{args}}
 
+# just serve -d ~/Downloads
+# 启动浏览器集成服务, 兼容 AB Download Manager 扩展.
+serve *args:
+    go run ./cmd/dn serve {{args}}
+
 # 输出当前生效的配置.
 config:
     @go run ./cmd/dn config show

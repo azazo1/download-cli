@@ -22,6 +22,15 @@ const (
 	MaxConnections = 64
 )
 
+// serve 监听端口允许的范围, 与 AB Download Manager 浏览器扩展的选项一致.
+const (
+	MinServePort = 1024
+	MaxServePort = 65535
+)
+
+// DefaultServePort 是 dn serve 的默认端口, 也是 ABDM 浏览器扩展的默认端口.
+const DefaultServePort = 15151
+
 // Config 是配置文件的内存表示. 大小与时长以文本保存, 便于手写.
 type Config struct {
 	Version      int               `toml:"version"`
@@ -35,6 +44,13 @@ type Config struct {
 	Proxy        string            `toml:"proxy"`
 	LogLevel     string            `toml:"log_level"`
 	Headers      map[string]string `toml:"headers"`
+
+	// Serve 相关字段只影响 dn serve. 含义与 ABDM 的集成设置一致.
+	ServePort int `toml:"serve_port"`
+	// ServeAPIKey 为空表示不使用 api key.
+	ServeAPIKey string `toml:"serve_api_key"`
+	// ServeAPIKeyEnforced 为 true 时, 浏览器集成端点也要求 api key.
+	ServeAPIKeyEnforced bool `toml:"serve_api_key_enforced"`
 }
 
 // Default 返回内置默认配置.
@@ -49,6 +65,7 @@ func Default() Config {
 		StallTimeout: "30s",
 		LogLevel:     "info",
 		Headers:      map[string]string{},
+		ServePort:    DefaultServePort,
 	}
 }
 
@@ -89,6 +106,12 @@ func (c Config) Validate() error {
 	}
 	if _, err := ParseDuration(c.StallTimeout); err != nil {
 		return fmt.Errorf("stall_timeout: %w", err)
+	}
+	if c.ServePort < MinServePort || c.ServePort > MaxServePort {
+		return fmt.Errorf("serve_port 必须在 %d 到 %d 之间, 当前为 %d", MinServePort, MaxServePort, c.ServePort)
+	}
+	if c.ServeAPIKeyEnforced && strings.TrimSpace(c.ServeAPIKey) == "" {
+		return fmt.Errorf("serve_api_key_enforced 为 true 时必须设置 serve_api_key")
 	}
 	return nil
 }
@@ -172,6 +195,17 @@ proxy = ""
 
 # 日志级别: debug / info / warn / error.
 log_level = "info"
+
+# ---- dn serve (浏览器集成) ----
+# 监听端口. AB Download Manager 浏览器扩展默认也连 15151.
+serve_port = 15151
+
+# 浏览器集成使用的 api key. 留空表示不校验.
+serve_api_key = ""
+
+# 为 true 时, 浏览器集成端点 (/ping, /add) 也要求 api key.
+# /start-headless-download 无论该开关如何都要求 api key.
+serve_api_key_enforced = false
 
 # 附加请求头, 每个请求都会带上.
 [headers]

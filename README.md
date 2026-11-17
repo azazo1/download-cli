@@ -22,6 +22,7 @@ $ dn -n 8 https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ls-lR.gz
 - 某个分片反复失败时先跳过, 让其它分片继续, 而不是直接终止整个下载.
 - 连接卡住超过阈值自动断开重连.
 - 目标文件已存在时自动改名为 `name (1).ext`, 不会误覆盖.
+- 浏览器集成: `dn serve` 兼容 AB Download Manager 的浏览器扩展, 下载自动带上 Cookie 等请求头, 并在终端里管理任务.
 
 ## 构建与安装
 
@@ -67,6 +68,44 @@ dn -d ~/Downloads -H "Referer: https://example.com" -H "Cookie: a=b" https://exa
 # 批量下载
 dn https://example.com/a.zip https://example.com/b.zip
 ```
+
+## 浏览器集成 (dn serve)
+
+`dn serve` 在本机回环地址上启动一个 HTTP 服务, 协议与 [AB Download Manager](https://github.com/amir1376/ab-download-manager) 的浏览器集成一致. 装上它的浏览器扩展, 把扩展选项里的端口指向这个服务, 浏览器里的下载就会交给 `dn`, 并且会带上 Cookie 等请求头, 解决"只有链接却下载不到"的问题.
+
+```shell
+dn serve                       # 默认端口 15151, 下载目录取配置
+dn serve -d ~/Downloads        # 指定下载目录
+dn serve --port 15152          # 端口被占用时换一个, 扩展选项里填同样的端口
+dn serve --no-tui              # 只输出日志, 不启动终端界面
+```
+
+扩展侧需要确认两件事:
+
+1. 扩展选项里的端口与 `dn serve` 一致, 默认都是 15151.
+2. 扩展选项里的 "发送请求头" 保持开启, 这样 Cookie 才会随下载一起发过来.
+
+如果机器上同时装了 AB Download Manager 本体并让它在后台运行, 两者会抢同一个端口. 用 `--port` 给 `dn serve` 换一个端口, 再在扩展选项里填同样的值即可.
+
+服务只监听 `127.0.0.1` 与 `::1`, 并且拒绝来自普通网页的请求 (只接受无 Origin 或扩展来源的请求), 所以不需要额外开放端口.
+
+终端里会显示任务列表与日志:
+
+| 按键 | 作用 |
+| --- | --- |
+| `↑` / `↓` 或 `k` / `j` | 选择任务 |
+| `s` 或空格 | 暂停 / 恢复选中任务 |
+| `r` | 重试已暂停或失败的任务 |
+| `x` | 从列表移除任务 (不删除已下载的数据) |
+| `q` | 退出. 还有任务在下载时需要再按一次确认 |
+
+暂停会让进行中的任务写出续传状态, 恢复时接着下. 退出 `dn serve` 也会保存进度, 之后用 `dn <url>` 或再次 `dn serve` 都能续传.
+
+标准输出不是终端时 (重定向到文件, 或者跑在后台) 会自动退回纯日志模式.
+
+api key 是可选的. 如果扩展选项里填了 key, `dn serve` 也要用 `--api-key` 配上同样的值; 再用 `--api-key-enforced` 可以让 `/ping` 与 `/add` 也必须带 key. 无论是否强制, `/start-headless-download` 都要求 key, 这个端点供脚本直接提交下载 (字段与 ABDM 的 REST API 相同, 支持 `folder` 与 `name`).
+
+不支持 HLS: 扩展提交 `type` 为 `hls` 的下载会被拒绝.
 
 ## 配置文件
 

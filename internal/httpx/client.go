@@ -107,6 +107,19 @@ func (c *Client) Get(ctx context.Context, rawURL string, start, end int64) (*htt
 	return resp, nil
 }
 
+// Derive 返回共享连接池的副本. extra 中的请求头会覆盖同名公共请求头,
+// 供单个下载任务携带 Cookie, Referer 这类任务级请求头使用.
+func (c *Client) Derive(extra map[string]string) *Client {
+	headers := make(map[string]string, len(c.headers)+len(extra))
+	for k, v := range c.headers {
+		headers[k] = v
+	}
+	for k, v := range extra {
+		headers[k] = v
+	}
+	return &Client{http: c.http, userAgent: c.userAgent, headers: headers}
+}
+
 // HeaderNames 返回附加请求头的名字 (已排序), 用于日志 (不输出值).
 func (c *Client) HeaderNames() []string {
 	names := make([]string, 0, len(c.headers))
